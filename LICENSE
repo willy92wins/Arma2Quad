@@ -1,0 +1,23 @@
+DayZ Public License (DPL)
+
+This addon - the Arma2Quad model, textures, materials, configs and scripts in this
+repository - is distributed under Bohemia Interactive's DayZ Public License (DPL).
+
+  Full license text: https://www.bohemia.net/en/licenses/dayz-public-license-dpl
+
+In Bohemia's own summary of that license you are free to reproduce and share the material,
+in whole or in part, and to produce modified versions, "for NonCommercial and DayzOnly
+purposes only", under these terms:
+
+  Attribution    "You must attribute the material in the manner specified by the author or
+                 licensor."
+  NonCommercial  "You may not use this material for any commercial purposes."
+  DayZ only      "You may not convert or adapt this material to be used in other games than
+                 Dayz."
+
+That summary has no legal effect: the binding terms are the full license text linked above.
+No patent or trademark rights are licensed, and the material is offered as-is and
+as-available, without warranties.
+
+The ATV model, textures and materials are the property of Bohemia Interactive a.s. See
+NOTICE.md for where they come from and how to credit them.

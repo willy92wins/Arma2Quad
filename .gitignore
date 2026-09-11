@@ -1,0 +1,18 @@
+# Build output - the packed addon is attached to releases, not tracked here
+*.pbo
+*.bisign
+*.bikey
+temp/
+out*/
+
+# Backups and scratch
+*.bak
+*.bak_*
+*.bak-*
+*~
+
+# Editors and OS
+.vscode/
+.idea/
+desktop.ini
+Thumbs.db

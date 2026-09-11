@@ -1,0 +1,3 @@
+# Addon sources are consumed byte for byte by the Bohemia tools, and the packed PBO is
+# compared against them, so git must not rewrite line endings on checkout.
+* -text
