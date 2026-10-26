@@ -126,10 +126,6 @@ gearbox ratios, `tyreGrip` and, since DayZ 1.30, `tyreLongitudinalFriction` and
 `tyreLateralFriction` on the wheel items, and the mass in the geometry LOD of
 `Arma2Quad_body.p3d`.
 
-`scripts/4_world/RiderHandsProbe.c` is a diagnostic kept on purpose. It is switched on for
-`Arma2Quad`, `LFQuad3` and `OffroadHatchback`: whoever drives one of them gets a line in their
-client script log every 0.1 s.
-
 ## Credits
 
 - **Bohemia Interactive a.s.** - the ATV model, textures and materials, from *Arma 2:

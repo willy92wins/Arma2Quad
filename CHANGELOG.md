@@ -47,6 +47,9 @@ Models, textures, materials and `model.cfg` are unchanged.
   `GetReplacement()`. Since 1.30 the game derives the replacement itself, as the class name
   plus `_Ruined`, which gives the same names.
 - `Arma2Quad_FrontLight` and `Arma2Quad_RearLight` (`CarLightBase` subclasses) are removed.
+- The rider-hands diagnostic, `scripts/4_world/RiderHandsProbe.c`, is removed. It modded
+  `CarScript.OnInput()` for every vehicle and, while someone drove this quad, wrote about ten
+  lines a second to their client script log.
 
 **Tested** in game on the 1.30.164200 DayZDiag of the stable install, server and client, with
 Survivor Animations loaded:
@@ -73,8 +76,6 @@ Central Economy spawn.
 
 - No tyre-burst sound plays when a wheel is ruined: vanilla picks that sound by wheel class
   name (`CarWheel_Ruined.PlayWheelExlosionSound()`) and lists only its own wheels.
-- `scripts/4_world/RiderHandsProbe.c`, unchanged since v1.0.0, is switched on for this quad:
-  while someone drives it, their client script log gets about ten lines a second.
 
 ## v1.0.0 - 2026-09-12
 
