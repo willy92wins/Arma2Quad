@@ -1,5 +1,7 @@
 class Arma2Quad_base extends CarScript
 {
+	protected ref Arma2Quad_LightProfileFront m_Arma2QuadFrontProfile;
+
 	void Arma2Quad_base()
 	{
 		m_dmgContactCoef = 0.02;
@@ -13,7 +15,8 @@ class Arma2Quad_base extends CarScript
 
 		// Lights and horn are CarScript components since DayZ 1.30: the base registers generic
 		// light profiles and no horn sound.
-		m_LightsComponent.RegisterLight("Front", new VehicleLightData(new Arma2Quad_LightProfileFront()));
+		m_Arma2QuadFrontProfile = new Arma2Quad_LightProfileFront();
+		m_LightsComponent.RegisterLight("Front", new VehicleLightData(m_Arma2QuadFrontProfile));
 		m_LightsComponent.RegisterLight("Rear", new VehicleLightData(new Arma2Quad_LightProfileRear()));
 
 		m_HornComponent.RegisterSound(VehicleHornMode.SHORT, "Hatchback_02_Horn_Short_SoundSet");
@@ -109,6 +112,20 @@ class Arma2Quad_base extends CarScript
 		#ifdef DIAG_DEVELOPER
 		Print(string.Format("[Arma2Quad] driver exit server=%1 lightIsOn=%2 engine=%3", GetGame().IsServer(), LightIsOn(), EngineIsOn()));
 		#endif
+	}
+
+	// The front profile switches its lens flare off whenever both bulbs light as one
+	// (VehicleLightProfileFront.ApplyAggregatedValues) and nothing switches it back on, so once
+	// both bulbs had been lit a headlight left with one bulb would show no flare for the rest of
+	// the vehicle's life. Up to 1.29 every single-bulb headlight showed it
+	// (CarLightBase.SegregateLight); the flag is restored here before the single-bulb state is
+	// applied.
+	override void UpdateLightsClient(int newGear = -1)
+	{
+		if (m_HeadlightsState == CarHeadlightBulbsState.LEFT || m_HeadlightsState == CarHeadlightBulbsState.RIGHT)
+			m_Arma2QuadFrontProfile.m_FlaresVisible = true;
+
+		super.UpdateLightsClient(newGear);
 	}
 
 	//! Spawns from the Central Economy with a full tank. Vanilla CarScript fills a random

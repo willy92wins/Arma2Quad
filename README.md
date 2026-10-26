@@ -122,11 +122,13 @@ Honest status, because it matters if you fork this: the vehicle drives, but trac
 steering are still being worked on. In first gear at full throttle the driven axle can ask
 more force than the tyres hold, which shows up as wheelspin on the steering axle and a wider
 line than the quad should take. The knobs involved are `Clutch.maxTorqueTransfer`, the
-gearbox ratios, `tyreGrip` on the wheel items, and the mass in the geometry LOD of
+gearbox ratios, `tyreGrip` and, since DayZ 1.30, `tyreLongitudinalFriction` and
+`tyreLateralFriction` on the wheel items, and the mass in the geometry LOD of
 `Arma2Quad_body.p3d`.
 
-`scripts/4_world/RiderHandsProbe.c` is a diagnostic kept on purpose. It only logs when its
-probe type is configured.
+`scripts/4_world/RiderHandsProbe.c` is a diagnostic kept on purpose. It is switched on for
+`Arma2Quad`, `LFQuad3` and `OffroadHatchback`: whoever drives one of them gets a line in their
+client script log every 0.1 s.
 
 ## Credits
 

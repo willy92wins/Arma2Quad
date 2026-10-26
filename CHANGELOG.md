@@ -11,8 +11,8 @@ unchanged.
 
 - None of the mod's scripts loaded, with no error. The `worldScriptModule` path in
   `config.cpp` was written with backslashes (`Arma2Quad\scripts\4_world`), and on
-  1.30.164200 such a path loads nothing, so the quad ran as a bare `CarScript`. The path now
-  uses forward slashes.
+  1.30.164200 such a path loads nothing (measured with LFQuad, whose path had the same form),
+  so the quad ran as a bare `CarScript`. The path now uses forward slashes.
 - With its scripts loading, v1.0.0 would not compile: `Arma2Quad_base` overrode
   `CarScript.ToggleHeadlights()`, which 1.30 deleted outright. Removed.
 - The engine could not start and the light switch never showed, with a battery attached.
@@ -25,7 +25,8 @@ unchanged.
   beam as strong as a headlight from a quad that has no reverse lens. 1.30 no longer calls
   `CreateFrontLight()`/`CreateRearLight()`; the same values now live in
   `Arma2Quad_LightProfileFront` and `Arma2Quad_LightProfileRear`, registered on the
-  vehicle's `VehicleLightsComponent`.
+  vehicle's `VehicleLightsComponent`. A headlight left with one bulb keeps its lens flare, as
+  in 1.29; the 1.30 front profile would switch it off for good once both bulbs had been lit.
 - The horn was silent: 1.30 plays it from `VehicleHornComponent`, where the quad now
   registers the same two sound sets.
 
@@ -33,7 +34,9 @@ unchanged.
 
 - Headlights left on when the driver steps off: 1.30 keeps the native lights on after the
   driver leaves, so the quad's own parked beam, the synchronised flag behind it and the
-  `ToggleHeadlights()` hook that set the flag are removed.
+  `ToggleHeadlights()` hook that set the flag are removed. With one bulb left the parked quad
+  now shows that bulb's own beam; the old parked beam was always the two-bulb one, from the
+  middle of the quad.
 - The wheels declare the four tyre fields that 1.30 added to every vanilla wheel
   (`tyreType`, `tyreRoughness`, `tyreLongitudinalFriction`, `tyreLateralFriction`), with the
   values of the vanilla `Offroad_02_Wheel`; the ruined wheels take the surface values of
