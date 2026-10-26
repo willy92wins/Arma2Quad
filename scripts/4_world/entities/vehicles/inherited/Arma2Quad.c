@@ -1,7 +1,6 @@
 class Arma2Quad_base extends CarScript
 {
-	bool m_Arma2QuadLightsWanted;
-	CarLightBase m_Arma2QuadExitLight;
+	protected ref Arma2Quad_LightProfileFront m_Arma2QuadFrontProfile;
 
 	void Arma2Quad_base()
 	{
@@ -13,10 +12,15 @@ class Arma2Quad_base extends CarScript
 		m_EngineStopFuel = "offroad_engine_stop_fuel_SoundSet";
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound = "offroad_door_close_SoundSet";
-		m_CarHornShortSoundName = "Hatchback_02_Horn_Short_SoundSet";
-		m_CarHornLongSoundName = "Hatchback_02_Horn_SoundSet";
 
-		RegisterNetSyncVariableBool("m_Arma2QuadLightsWanted");
+		// Lights and horn are CarScript components since DayZ 1.30: the base registers generic
+		// light profiles and no horn sound.
+		m_Arma2QuadFrontProfile = new Arma2Quad_LightProfileFront();
+		m_LightsComponent.RegisterLight("Front", new VehicleLightData(m_Arma2QuadFrontProfile));
+		m_LightsComponent.RegisterLight("Rear", new VehicleLightData(new Arma2Quad_LightProfileRear()));
+
+		m_HornComponent.RegisterSound(VehicleHornMode.SHORT, "Hatchback_02_Horn_Short_SoundSet");
+		m_HornComponent.RegisterSound(VehicleHornMode.LONG, "Hatchback_02_Horn_SoundSet");
 	}
 
 	override int GetAnimInstance()
@@ -61,11 +65,6 @@ class Arma2Quad_base extends CarScript
 		return false;
 	}
 
-	override bool IsVitalTruckBattery()
-	{
-		return false;
-	}
-
 	override bool IsVitalRadiator()
 	{
 		return false;
@@ -76,14 +75,23 @@ class Arma2Quad_base extends CarScript
 		return false;
 	}
 
-	override CarLightBase CreateFrontLight()
+	// The battery is found through the electricity source since DayZ 1.30. Transport answers no
+	// device by default, and CarScript then reports NO_BATTERY with a battery attached: the engine
+	// never starts and the lights action never shows. Same three overrides as the vanilla
+	// petrol cars.
+	override bool NeedElectricitySourceDevice()
 	{
-		return CarLightBase.Cast(ScriptedLightBase.CreateLight(Arma2Quad_FrontLight));
+		return true;
 	}
 
-	override CarRearLightBase CreateRearLight()
+	override EntityAI GetElectricitySourceDevice()
 	{
-		return CarRearLightBase.Cast(ScriptedLightBase.CreateLight(Arma2Quad_RearLight));
+		return GetInventory().FindAttachment(CarBattery.SLOT_ID);
+	}
+
+	override string GetElectricitySourceDeviceType()
+	{
+		return "CarBattery";
 	}
 
 	override float GetActionDistanceFuel()
@@ -91,6 +99,9 @@ class Arma2Quad_base extends CarScript
 		return 3.2;
 	}
 
+	// Keep the engine running when the driver dismounts: CarScript.OnDriverExit stops it unless
+	// the gearbox is in neutral. The headlights need nothing here: since DayZ 1.30 the native
+	// light state survives the driver's exit, on the server and on the clients.
 	override void OnDriverExit(Human player)
 	{
 		bool wasRunning = EngineIsOn();
@@ -98,60 +109,27 @@ class Arma2Quad_base extends CarScript
 		if (wasRunning && !EngineIsOn())
 			EngineStart();
 
-		if (GetGame().IsServer())
-		{
-			ForceUpdateLightsStart();
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ForceUpdateLightsEnd, 100, false);
-		}
+		#ifdef DIAG_DEVELOPER
+		Print(string.Format("[Arma2Quad] driver exit server=%1 lightIsOn=%2 engine=%3", GetGame().IsServer(), LightIsOn(), EngineIsOn()));
+		#endif
 	}
 
-	void ManageExitLight()
-	{
-		bool need = m_Arma2QuadLightsWanted && !LightIsOn() && m_HeadlightsState != CarHeadlightBulbsState.NONE && !IsDamageDestroyed();
-		if (need && !m_Arma2QuadExitLight)
-		{
-			m_Arma2QuadExitLight = CreateFrontLight();
-			if (m_Arma2QuadExitLight)
-			{
-				vector posLeft = GetMemoryPointPos(m_LeftHeadlightPoint);
-				vector posRight = GetMemoryPointPos(m_RightHeadlightPoint);
-				m_Arma2QuadExitLight.AttachOnObject(this, (posLeft + posRight) * 0.5);
-				m_Arma2QuadExitLight.AggregateLight();
-			}
-		}
-		else if (!need && m_Arma2QuadExitLight)
-		{
-			m_Arma2QuadExitLight.FadeOut();
-			m_Arma2QuadExitLight = null;
-		}
-	}
-
+	// The front profile switches its lens flare off whenever both bulbs light as one
+	// (VehicleLightProfileFront.ApplyAggregatedValues) and nothing switches it back on, so once
+	// both bulbs had been lit a headlight left with one bulb would show no flare for the rest of
+	// the vehicle's life. Up to 1.29 every single-bulb headlight showed it
+	// (CarLightBase.SegregateLight); the flag is restored here before the single-bulb state is
+	// applied.
 	override void UpdateLightsClient(int newGear = -1)
 	{
+		if (m_HeadlightsState == CarHeadlightBulbsState.LEFT || m_HeadlightsState == CarHeadlightBulbsState.RIGHT)
+			m_Arma2QuadFrontProfile.m_FlaresVisible = true;
+
 		super.UpdateLightsClient(newGear);
-		ManageExitLight();
-	}
-
-	override void EEDelete(EntityAI parent)
-	{
-		super.EEDelete(parent);
-		if (m_Arma2QuadExitLight)
-		{
-			m_Arma2QuadExitLight.Destroy();
-			m_Arma2QuadExitLight = null;
-		}
-	}
-
-	override void ToggleHeadlights()
-	{
-		super.ToggleHeadlights();
-		m_Arma2QuadLightsWanted = IsScriptedLightsOn();
-		if (GetGame().IsServer())
-			SetSynchDirty();
 	}
 
 	//! Spawns from the Central Economy with a full tank. Vanilla CarScript fills a random
-	//! 0-35 % (carscript.c:2967-2974); this tops up to capacity from whatever that left, so
+	//! 0-35 % (carscript.c:2412-2419); this tops up to capacity from whatever that left, so
 	//! the result does not depend on Fill clamping at capacity.
 	override void EEOnCECreate()
 	{
@@ -177,17 +155,17 @@ class Arma2Quad_base extends CarScript
 		Fill(CarFluid.FUEL, GetFluidCapacity(CarFluid.FUEL));
 	}
 
-	// Reach condition point for CanReachSeatFromDoors (carscript.c:2710-2732). Vanilla and
+	// Reach condition point for CanReachSeatFromDoors (carscript.c:2177-2199). Vanilla and
 	// LFQuad return centred seat_con_* points; this model has none baked and uses the approach
 	// points instead.
 	//
 	// Substituting the centred crew points was TRIED on 2026-09-07 and REVERTED: in game the
 	// driver entering from the right ended up yawed 15-20 deg and the codriver became
 	// unreachable from BOTH sides. The offline arithmetic had predicted it would pass
-	// (0.85 m driver, 0.83 m codriver against the 1.0 m default), so the default is not what
-	// the engine passes: CanReachSeatFromDoors is invoked natively - no vanilla script calls
-	// it - and neither pDistance nor pFromPos are observable from script. Instrument them with
-	// a logging override before touching this again.
+	// (0.85 m driver, 0.83 m codriver against the 1.0 m limit). That limit is what the get-in
+	// action passes, with the player's position (actiongetintransport.c:64), so the arithmetic
+	// does not explain the failure. Instrument CanReachSeatFromDoors with a logging override
+	// before touching this again.
 	override string GetDoorConditionPointFromSelection(string selection)
 	{
 		switch (selection)

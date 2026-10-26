@@ -6,13 +6,13 @@
 // (Inventory_Base catch-all, dayzplayercfgbase.c:373) because the heavy
 // in-hands IK profile is registered per exact leaf class and CarWheel is
 // not in that list. Vanilla wheels register explicitly (e.g. CivSedanWheel,
-// dayzplayercfgbase.c:868). Reuse the vanilla sedan-wheel heavy IK assets;
+// dayzplayercfgbase.c:892). Reuse the vanilla sedan-wheel heavy IK assets;
 // the .asi workspace and .anm are present in base DayZ.
 //
 // The ruined classes are separate leaf types, so they need their own entry or a
 // destroyed wheel taken in hands falls back to the one-handed profile. Vanilla
 // registers every ruined wheel too; the sedan set carries a destroyed pose of its
-// own, used by CivSedanWheel_Ruined (dayzplayercfgbase.c:869).
+// own, used by CivSedanWheel_Ruined (dayzplayercfgbase.c:893).
 // ============================================================
 modded class ModItemRegisterCallbacks
 {

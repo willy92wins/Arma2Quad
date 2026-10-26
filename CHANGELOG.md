@@ -1,5 +1,85 @@
 # Changelog
 
+## v1.0.1 - 2026-10-26
+
+The port to DayZ 1.30. v1.0.0 was written for 1.29: on 1.30 its scripts do not load, and
+with the script path fixed they do not compile. This version does not load on 1.29. Checked
+against the DayZ 1.30.164200 scripts and in game on a 1.30.164200 DayZDiag server and client.
+Models, textures, materials and `model.cfg` are unchanged.
+
+**Fixed**
+
+- None of the mod's scripts loaded, with no error. The `worldScriptModule` path in
+  `config.cpp` was written with backslashes (`Arma2Quad\scripts\4_world`), and on
+  1.30.164200 such a path loads nothing (measured with LFQuad, whose path had the same form),
+  so the quad would run as a bare `CarScript`. The path now uses forward slashes.
+- With its scripts loading, v1.0.0 would not compile: `Arma2Quad_base` overrode
+  `CarScript.ToggleHeadlights()`, which 1.30 deleted outright. Removed.
+- The engine could not start and the light switch never showed, with a battery attached.
+  Since 1.30 the battery is found through `Transport.GetElectricitySourceDevice()`, which
+  returns nothing unless the vehicle overrides it. The quad now declares its `CarBattery` the
+  way the vanilla petrol cars do; the old `IsVitalTruckBattery()` override is gone, since 1.30
+  no longer calls it.
+- The headlight came out as the generic 1.30 beam (brightness 20/30 instead of 3/6), and the
+  rear light as the generic profile: a dimmer brake light (2 instead of 4) and, in reverse, a
+  beam as strong as a headlight from a quad that has no reverse lens. 1.30 no longer calls
+  `CreateFrontLight()`/`CreateRearLight()`; the same values now live in
+  `Arma2Quad_LightProfileFront` and `Arma2Quad_LightProfileRear`, registered on the
+  vehicle's `VehicleLightsComponent`. A headlight left with one bulb keeps its lens flare, as
+  in 1.29; the 1.30 front profile would switch it off for good once both bulbs had been lit.
+- The horn was silent: 1.30 plays it from `VehicleHornComponent`, where the quad now
+  registers the same two sound sets.
+
+**Changed**
+
+- Headlights left on when the driver steps off: 1.30 keeps the native lights on after the
+  driver leaves, so the quad's own parked beam, the synchronised flag behind it and the
+  `ToggleHeadlights()` hook that set the flag are removed. Measured with this build: after the
+  driver got off with the lights on, the lights stayed on for the server and the client, and
+  the beam still lit the ground; a client that joins later was not tested. With one bulb left
+  the parked quad now shows that bulb's own beam; the old parked beam was always the two-bulb
+  one, from the middle of the quad.
+- The wheels declare the four tyre fields that 1.30 added to every vanilla wheel
+  (`tyreType`, `tyreRoughness`, `tyreLongitudinalFriction`, `tyreLateralFriction`), with the
+  values of the vanilla `Offroad_02_Wheel`; the ruined wheels take the surface values of
+  `Offroad_02_Wheel_Ruined`.
+- The wheel script classes no longer override `GetRuinedReplacement()` and
+  `GetReplacement()`. Since 1.30 the game derives the replacement itself, as the class name
+  plus `_Ruined`, which gives the same names.
+- `Arma2Quad_FrontLight` and `Arma2Quad_RearLight` (`CarLightBase` subclasses) are removed.
+- The rider-hands diagnostic, `scripts/4_world/RiderHandsProbe.c`, is removed. It modded
+  `CarScript.OnInput()` for every vehicle and, while someone drove this quad, wrote about ten
+  lines a second to their client script log.
+
+**Tested** in game on the 1.30.164200 DayZDiag of the stable install, server and client, with
+Survivor Animations loaded:
+
+- The scripts load and compile on both sides (`World` module at 2348 files with the release
+  build), with no script errors from the mod and no ruined-wheel errors.
+- The engine starts, the headlights light the ground ahead, the short-horn action starts, and
+  getting off keeps the engine running and the lights on. The driver sits in the Survivor
+  Animations quad pose.
+- The four wheel classes run their own script classes; each ruined wheel fits the two slots of
+  its own axle, is refused by the other axle and shows its torn-tyre model.
+- Lights on with both bulbs and then one bulb removed, twice: the remaining headlight drew the
+  bright screen glow the two-bulb state did not, as the lens-flare fix intends.
+- A copy with a manual gearbox, because the test tool cannot shift an automatic one, reached
+  34 to 39 km/h in 2.8 s from a standstill, turned about 65 degrees in 2.3 s at full lock and
+  40 to 47 km/h without rolling over, and stopped from about 38 km/h in about 1.6 s.
+
+The release build ran the first two checks. The wheel, lens-flare and driving checks ran on
+the build before the rider-hands diagnostic was removed, whose scripts and `config.cpp` are
+otherwise the same.
+
+Not tested: the automatic gearbox itself, the co-driver seat, the horn sound, a wheel that
+reaches zero health (no test tool can set it), a client joining later, and the full tank of a
+Central Economy spawn.
+
+**Known issues**
+
+- No tyre-burst sound plays when a wheel is ruined: vanilla picks that sound by wheel class
+  name (`CarWheel_Ruined.PlayWheelExlosionSound()`) and lists only its own wheels.
+
 ## v1.0.0 - 2026-09-12
 
 First public release. It is the build that had been running as the stable export, published
