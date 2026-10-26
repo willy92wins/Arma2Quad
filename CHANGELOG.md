@@ -54,9 +54,8 @@ Models, textures, materials and `model.cfg` are unchanged.
 **Tested** in game on the 1.30.164200 DayZDiag of the stable install, server and client, with
 Survivor Animations loaded:
 
-- The scripts load and compile on both sides (`World` module at 2349 files, the count of
-  LFQuad v1.0.1 with the same mods), with no script errors from the mod and no ruined-wheel
-  errors.
+- The scripts load and compile on both sides (`World` module at 2348 files with the release
+  build), with no script errors from the mod and no ruined-wheel errors.
 - The engine starts, the headlights light the ground ahead, the short-horn action starts, and
   getting off keeps the engine running and the lights on. The driver sits in the Survivor
   Animations quad pose.
@@ -67,6 +66,10 @@ Survivor Animations loaded:
 - A copy with a manual gearbox, because the test tool cannot shift an automatic one, reached
   34 to 39 km/h in 2.8 s from a standstill, turned about 65 degrees in 2.3 s at full lock and
   40 to 47 km/h without rolling over, and stopped from about 38 km/h in about 1.6 s.
+
+The release build ran the first two checks. The wheel, lens-flare and driving checks ran on
+the build before the rider-hands diagnostic was removed, whose scripts and `config.cpp` are
+otherwise the same.
 
 Not tested: the automatic gearbox itself, the co-driver seat, the horn sound, a wheel that
 reaches zero health (no test tool can set it), a client joining later, and the full tank of a
