@@ -51,7 +51,7 @@ class CfgMods
 			class worldScriptModule
 			{
 				value = "";
-				files[] = {"Arma2Quad\scripts\4_world"};
+				files[] = {"Arma2Quad/scripts/4_world"};
 			};
 		};
 	};
@@ -173,6 +173,11 @@ class CfgVehicles
 		tyreOffroadResistance = 0.99;
 		tyreGrip = 0.99;
 		tyreRollResistance = 0.015;
+		// DayZ 1.30 tyre model fields, with the values of the vanilla Offroad_02_Wheel
+		tyreType = 0;
+		tyreRoughness = 1;
+		tyreLongitudinalFriction = 1.5;
+		tyreLateralFriction = 1.8;
 		physLayer = "item_large";
 		class DamageSystem
 		{
@@ -222,6 +227,11 @@ class CfgVehicles
 		tyreOffroadResistance = 0.99;
 		tyreGrip = 0.99;
 		tyreRollResistance = 0.015;
+		// DayZ 1.30 tyre model fields, with the values of the vanilla Offroad_02_Wheel
+		tyreType = 0;
+		tyreRoughness = 1;
+		tyreLongitudinalFriction = 1.5;
+		tyreLateralFriction = 1.8;
 		physLayer = "item_large";
 		class DamageSystem
 		{
@@ -254,10 +264,12 @@ class CfgVehicles
 		};
 	};
 
-	// Ruined variants, swapped in by CarWheel.EEHealthLevelChanged through the names
-	// resolved in Arma2Quad_Wheels.c. Only the model and the contact patch change; slots,
-	// weight, health and sounds are inherited so the wheel keeps its identity and stays
-	// in the same slot.
+	// Ruined variants. CarWheel.EEHealthLevelChanged swaps a wheel that reaches the ruined
+	// state for the class of the same name plus "_Ruined", and every wheel class without
+	// one logs a script error (see Arma2Quad_Wheels.c). Only the model and the contact patch
+	// change; slots, weight, health and sounds are inherited so the wheel keeps its identity
+	// and stays in the same slot. The 1.30 tyre surface fields take the values of the
+	// vanilla Offroad_02_Wheel_Ruined.
 	//
 	// radius comes from the outer envelope of the torn tyre measured every 10 degrees
 	// around the axle: median 0.3275, mean 0.3125, peak 0.3588 on the shreds. The tyre is
@@ -275,6 +287,9 @@ class CfgVehicles
 		tyreOffroadResistance = 0.10;
 		tyreGrip = 0.33;
 		tyreRollResistance = 0.3;
+		tyreRoughness = 0.2;
+		tyreLongitudinalFriction = 0.25;
+		tyreLateralFriction = 4.95;
 	};
 
 	class Arma2Quad_Wheel_Rear_Ruined: Arma2Quad_Wheel_Rear
@@ -286,6 +301,9 @@ class CfgVehicles
 		tyreOffroadResistance = 0.10;
 		tyreGrip = 0.33;
 		tyreRollResistance = 0.3;
+		tyreRoughness = 0.2;
+		tyreLongitudinalFriction = 0.25;
+		tyreLateralFriction = 4.95;
 	};
 
 	class Arma2Quad_base: CarScript

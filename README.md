@@ -1,8 +1,11 @@
 # Arma2Quad
 
-A two-seat ATV for **DayZ 1.29**, ported from the *Arma 2: Operation Arrowhead* ATV using
+A two-seat ATV for **DayZ 1.30**, ported from the *Arma 2: Operation Arrowhead* ATV using
 Bohemia Interactive's own Licensed Data Package. Drivable, repairable, lit, and wired into
 the Central Economy.
+
+From v1.0.1 the mod is built for DayZ 1.30 and does not load on 1.29; v1.0.0 is the 1.29
+build. See [CHANGELOG.md](CHANGELOG.md).
 
 The model, textures and materials are Bohemia Interactive's. See [NOTICE.md](NOTICE.md) for
 attribution and [LICENSE](LICENSE) for the terms: non-commercial, DayZ only.
@@ -32,10 +35,12 @@ attribution and [LICENSE](LICENSE) for the terms: non-commercial, DayZ only.
 
 ## Install
 
-1. Download `Arma2Quad.pbo` from the latest release.
-2. Put it in `@Arma2Quad\Addons\Arma2Quad.pbo`, next to the game on the client and next to
-   the server executable on the server.
-3. Add `-mod=@Arma2Quad` to both command lines. A vehicle mod has to be on both sides.
+1. Download `Arma2Quad.pbo`, `Arma2Quad.pbo.Return0.bisign` and `Return0.bikey` from the
+   latest release.
+2. Put the `.pbo` and the `.bisign` in `@Arma2Quad\Addons\`, next to the game on the client
+   and next to the server executable on the server.
+3. Put `Return0.bikey` in the server's `keys\` folder.
+4. Add `-mod=@Arma2Quad` to both command lines. A vehicle mod has to be on both sides.
 
 ## Make it spawn (Central Economy)
 
