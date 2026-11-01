@@ -82,4 +82,18 @@ modded class ActionGetInTransport
 		vector ori = player.GetOrientation();
 		player.SetOrientation(Vector(yaw, ori[1], ori[2]));
 	}
+
+#ifdef DIAG_DEVELOPER
+	// Release builds do not compile this. super's result is what the action uses.
+	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
+	{
+		bool result = super.ActionCondition(player, target, item);
+
+		Arma2Quad_base quad;
+		if (player && target && Class.CastTo(quad, target.GetObject()))
+			quad.Arma2Quad_LogGetInDiag(player, target.GetComponentIndex(), result);
+
+		return result;
+	}
+#endif
 }

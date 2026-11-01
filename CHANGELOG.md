@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+Diagnostic only. The missing 1.30 get-in action is not fixed in this build.
+
+**Added**
+
+- With `DIAG_DEVELOPER` defined, looking at an Arma2Quad prints the driver and co-driver
+  get-in checks. Each line is sent with `Print` and `ErrorEx` and starts with `[A2Q-DIAG]`.
+  The lines carry `GetDoorConditionPointFromSelection` (`pos_driver` / `pos_codriver`) and
+  `MemoryPointExists` for that point, `GetCrewIndex` for the crew `actionSel`, the cursor
+  component and the selection names it resolved, `CrewPositionIndex` for that component,
+  `CanReachSeatFromDoors` and `CanReachDoorsFromSeat`, `GetAnimInstance`,
+  `GetSeatAnimationType`, and the `ActionGetInTransport` condition result. A build without
+  `DIAG_DEVELOPER` does not compile the logging. Get-in behaviour is unchanged either way:
+  the logged condition is the value `super` already returned.
+
 ## v1.0.1 - 2026-10-26
 
 The port to DayZ 1.30. v1.0.0 was written for 1.29: on 1.30 its scripts do not load, and
