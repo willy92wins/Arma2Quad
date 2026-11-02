@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.2 - unreleased
+## v1.0.2 - 2026-11-02
 
 The quad can be mounted from either side. Scripts only: models, textures, materials,
 `config.cpp` and `model.cfg` are the same as in v1.0.1.
