@@ -182,21 +182,22 @@ class Arma2Quad_base extends CarScript
 	}
 
 	// pos_driver and pos_codriver both sit on the left of the bench (model X -0.82), so the
-	// vanilla 1 m reach test only passes from the left side. The bench is symmetric: the point
-	// mirrored in X is accepted as well, when the mirrored entry area is free, and
-	// Arma2Quad_RealignSeatSide (Arma2Quad_ActionGetInTransport.c) seats the rider from the side
-	// approached. ActionGetInTransport still tests the left entry area first
+	// vanilla 1 m reach test only passes from the left side. The bench is symmetric: a rider on
+	// the other side of the bench is tested against the point mirrored in X and its entry area,
+	// the side Arma2Quad_RealignSeatSide (Arma2Quad_ActionGetInTransport.c) then seats them from,
+	// by the same model X sign. ActionGetInTransport still tests the left entry area first
 	// (actiongetintransport.c:54), so a blocked left side blocks both.
 	override bool CanReachSeatFromDoors(string pSeatSelection, vector pFromPos, float pDistance = 1.0)
 	{
-		if (super.CanReachSeatFromDoors(pSeatSelection, pFromPos, pDistance))
-			return true;
-
 		string conPointName = GetDoorConditionPointFromSelection(pSeatSelection);
 		if (conPointName.Length() == 0 || !MemoryPointExists(conPointName))
-			return false;
+			return super.CanReachSeatFromDoors(pSeatSelection, pFromPos, pDistance);
 
 		vector conPointMS = GetMemoryPointPos(conPointName);
+		bool otherSide = (WorldToModel(pFromPos)[0] < 0) != (conPointMS[0] < 0);
+		if (!otherSide)
+			return super.CanReachSeatFromDoors(pSeatSelection, pFromPos, pDistance);
+
 		conPointMS[0] = -conPointMS[0];
 		vector conPointWS = ModelToWorld(conPointMS);
 		conPointWS[1] = 0;
