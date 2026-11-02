@@ -183,9 +183,10 @@ class Arma2Quad_base extends CarScript
 
 	// pos_driver and pos_codriver both sit on the left of the bench (model X -0.82), so the
 	// vanilla 1 m reach test only passes from the left side. The bench is symmetric: the point
-	// mirrored in X is accepted as well, and Arma2Quad_RealignSeatSide
-	// (Arma2Quad_ActionGetInTransport.c) seats the rider from the side approached. The door-area
-	// test (Transport.IsAreaAtDoorFree, from the crew entry point) still looks at the left side.
+	// mirrored in X is accepted as well, when the mirrored entry area is free, and
+	// Arma2Quad_RealignSeatSide (Arma2Quad_ActionGetInTransport.c) seats the rider from the side
+	// approached. ActionGetInTransport still tests the left entry area first
+	// (actiongetintransport.c:54), so a blocked left side blocks both.
 	override bool CanReachSeatFromDoors(string pSeatSelection, vector pFromPos, float pDistance = 1.0)
 	{
 		if (super.CanReachSeatFromDoors(pSeatSelection, pFromPos, pDistance))
@@ -200,8 +201,59 @@ class Arma2Quad_base extends CarScript
 		vector conPointWS = ModelToWorld(conPointMS);
 		conPointWS[1] = 0;
 		pFromPos[1] = 0;
+		if (vector.Distance(pFromPos, conPointWS) > pDistance)
+			return false;
 
-		return vector.Distance(pFromPos, conPointWS) <= pDistance;
+		return Arma2Quad_IsMirroredEntryFree(GetCrewIndex(pSeatSelection));
+	}
+
+	// Transport.IsAreaAtDoorFreeDiag with its default extents (transport.c:853-924), for the crew
+	// entry point mirrored in X: the area the side snap moves the rider into.
+	protected bool Arma2Quad_IsMirroredEntryFree(int seat)
+	{
+		if (seat < 0)
+			return false;
+
+		if (DiagMenu.GetBool(DiagMenuIDs.TRANSPORT_FREESPACE_DISABLED))
+			return true;
+
+		vector crewPos;
+		vector crewDir;
+		CrewEntry(seat, crewPos, crewDir);
+		crewPos[0] = -crewPos[0];
+		crewDir[0] = -crewDir[0];
+
+		vector transform[4];
+		GetTransform(transform);
+
+		vector entry[4];
+		entry[2] = crewDir;
+		entry[0] = vector.Up * crewDir;
+		entry[1] = entry[2] * entry[0];
+		entry[3] = crewPos;
+		Math3D.MatrixMultiply4(transform, entry, transform);
+
+		vector extents = Vector(0.5, 1.7, 0.5);
+		vector position = transform[3];
+		vector orientation = Math3D.MatrixToAngles(transform);
+		position[1] = position[1] + 0.5 + (extents[1] * 0.5);
+
+		array<Object> excluded = new array<Object>;
+		array<Object> collided = new array<Object>;
+		excluded.Insert(this);
+		g_Game.IsBoxColliding(position, orientation, extents, excluded, collided);
+
+		foreach (Object o : collided)
+		{
+			if (IsIgnoredObject(o))
+				continue;
+
+			vector minmax[2];
+			if (o.GetCollisionBox(minmax))
+				return false;
+		}
+
+		return true;
 	}
 
 	override int GetCrewIndex(string selection)
