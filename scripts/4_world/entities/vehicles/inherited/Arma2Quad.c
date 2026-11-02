@@ -181,6 +181,29 @@ class Arma2Quad_base extends CarScript
 		return "";
 	}
 
+	// pos_driver and pos_codriver both sit on the left of the bench (model X -0.82), so the
+	// vanilla 1 m reach test only passes from the left side. The bench is symmetric: the point
+	// mirrored in X is accepted as well, and Arma2Quad_RealignSeatSide
+	// (Arma2Quad_ActionGetInTransport.c) seats the rider from the side approached. The door-area
+	// test (Transport.IsAreaAtDoorFree, from the crew entry point) still looks at the left side.
+	override bool CanReachSeatFromDoors(string pSeatSelection, vector pFromPos, float pDistance = 1.0)
+	{
+		if (super.CanReachSeatFromDoors(pSeatSelection, pFromPos, pDistance))
+			return true;
+
+		string conPointName = GetDoorConditionPointFromSelection(pSeatSelection);
+		if (conPointName.Length() == 0 || !MemoryPointExists(conPointName))
+			return false;
+
+		vector conPointMS = GetMemoryPointPos(conPointName);
+		conPointMS[0] = -conPointMS[0];
+		vector conPointWS = ModelToWorld(conPointMS);
+		conPointWS[1] = 0;
+		pFromPos[1] = 0;
+
+		return vector.Distance(pFromPos, conPointWS) <= pDistance;
+	}
+
 	override int GetCrewIndex(string selection)
 	{
 		switch (selection)
