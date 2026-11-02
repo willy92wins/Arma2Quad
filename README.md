@@ -12,7 +12,7 @@ attribution and [LICENSE](LICENSE) for the terms: non-commercial, DayZ only.
 
 ## What it does
 
-- Two crew seats: driver and co-driver.
+- Two crew seats, driver and co-driver, that can be mounted from either side.
 - Front-wheel drive, 45 degree steering lock with a speed-dependent steering ramp, automatic
   4-speed gearbox, 750 kg, 25 L tank.
 - Four attachable and repairable wheels, each with its own ruined model; car battery, spark
