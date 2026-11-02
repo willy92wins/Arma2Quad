@@ -1,5 +1,41 @@
 # Changelog
 
+## v1.0.2 - 2026-11-02
+
+The quad can be mounted from either side. Scripts only: models, textures, materials,
+`config.cpp` and `model.cfg` are the same as in v1.0.1.
+
+**Changed**
+
+- From the right side the get-in action never showed, for either seat. Both approach points,
+  `pos_driver` and `pos_codriver`, sit on the left of the shared bench, and the action only
+  shows within 1 m of the approach point. A rider on the right is now measured against the same
+  point mirrored to the right, and the right entry area has to be free, as the left one has to
+  be for the vanilla action. The rider is then placed on the side they came from.
+- When getting on, the rider is placed at the approach point of the seat they aimed at, the
+  seat the game then seats them in. It used to be the approach point of the nearest seat, so
+  getting on as co-driver from beside the driver's point started at the driver's point.
+
+**Tested** in game on the 1.30.164200 DayZDiag of the stable install, server and client, with
+Survivor Animations loaded:
+
+- The scripts load, with no script errors from the mod.
+- Standing next to each approach point and next to its mirror on the right, the game's get-in
+  condition reports the action available for both seats. v1.0.1 reported both seats out of
+  reach on the right.
+- The get-in action seats the rider on the seat aimed at, from both sides and for both seats.
+  Side views show the same seated pose whichever side the rider came from.
+- Getting off put the rider on the left in all four cases.
+
+Not tested: the on-screen prompt of v1.0.2 (the test tool could not turn the view towards the
+seat), a server with other players, and the quad standing on a slope.
+
+**Known issues**
+
+- The vanilla get-in action also checks the free space at the left approach point, so with
+  something right against the left side the quad cannot be mounted from either side.
+- Getting off always puts the rider on the left, whichever side they got on from.
+
 ## v1.0.1 - 2026-10-26
 
 The port to DayZ 1.30. v1.0.0 was written for 1.29: on 1.30 its scripts do not load, and
