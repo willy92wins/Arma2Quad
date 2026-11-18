@@ -1,9 +1,10 @@
 // Arma2Quad bilateral get-in: snap the player to the side of the bench they approached from, so a
 // right-side approach does not spin the player >180 deg. The engine forces yaw toward
-// dir(pos_<role> -> pos_<role>_dir), which sits on one side only. The approach side is read
-// BEFORE super (super moves the player toward the seat centre, which loses the side), then the
-// snap mirrors the base point in X to the approach side. The quad is symmetric (shared bench),
-// so the mirror is exact; no _L/_R memory points needed.
+// dir(pos_<role> -> pos_<role>_dir), which sits on one side only. The approach side is the
+// player's model-space X when the action starts: OnStartServer/OnStartClient run inside
+// ActionBase.Start, before ActionGetInTransport.Start calls StartCommand_Vehicle
+// (actiongetintransport.c:71-104). The snap mirrors the base point in X to that side. The quad is
+// symmetric (shared bench), so the mirror is exact; no _L/_R memory points needed.
 // Pattern: dayz-animation-pipeline references/dual-entry-action-pattern.md (runtime-mirror variant).
 modded class ActionGetInTransport
 {
@@ -21,7 +22,7 @@ modded class ActionGetInTransport
 		Arma2Quad_RealignSeatSide(action_data, preX);
 	}
 
-	// Player local-X relative to the quad BEFORE super runs. 999 = not our vehicle / invalid.
+	// Player local X relative to the quad when the action starts. 999 = not our vehicle / invalid.
 	protected float Arma2Quad_ApproachX(ActionData action_data)
 	{
 		if (!action_data || !action_data.m_Player || !action_data.m_Target)
@@ -43,11 +44,17 @@ modded class ActionGetInTransport
 		if (!Class.CastTo(quad, action_data.m_Target.GetObject()))
 			return;
 
-		// Nearest seat by crew memory point (the action slot is not always reliable here).
-		vector postLocal = quad.WorldToModel(player.GetPosition());
-		bool isDriver = true;
-		if (quad.MemoryPointExists("crewdriver") && quad.MemoryPointExists("crewcodriver"))
-			isDriver = vector.Distance(postLocal, quad.GetMemoryPointPos("crewdriver")) <= vector.Distance(postLocal, quad.GetMemoryPointPos("crewcodriver"));
+		// The seat of the action's component, the crew index ActionGetInTransport.Start passes to
+		// StartCommand_Vehicle (actiongetintransport.c:76-77). Nearest crew point if it does not map.
+		int crewIdx = quad.CrewPositionIndex(action_data.m_Target.GetComponentIndex());
+		bool isDriver = (crewIdx == 0);
+		if (crewIdx < 0)
+		{
+			vector postLocal = quad.WorldToModel(player.GetPosition());
+			isDriver = true;
+			if (quad.MemoryPointExists("crewdriver") && quad.MemoryPointExists("crewcodriver"))
+				isDriver = vector.Distance(postLocal, quad.GetMemoryPointPos("crewdriver")) <= vector.Distance(postLocal, quad.GetMemoryPointPos("crewcodriver"));
+		}
 
 		string role = "codriver";
 		if (isDriver)
