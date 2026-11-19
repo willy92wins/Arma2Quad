@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.0.3 - 2026-11-19
+
+The driver sits in line with the handlebar. Only the body model changes: scripts, textures,
+materials, `config.cpp` and `model.cfg` are the same as in v1.0.2.
+
+**Changed**
+
+- The driver sat about 2 cm too low and 1.5 to 2 cm too far back for the handlebar. The
+  driver's seat anchor, the `crew_driver` proxy in every LOD that has one and the `crewdriver`
+  memory point, now sits 20 mm higher and 17.5 mm further forward. The co-driver does not move.
+
+**Tested** in game on the 1.30.164289 DayZDiag of the stable install, server and client, with
+Survivor Animations loaded:
+
+- The owner sat in the driver's seat and checked the posture against the handlebar.
+- The scripts load (`World` module at 2350 files), with no script errors from the mod.
+
+Checked offline: the new model differs from the v1.0.2 one only in the 25 points of the driver's
+anchor, each moved by exactly 20 mm up and 17.5 mm forward, and keeps its size.
+
+Not tested: a server with other players.
+
+**Known issues**: the same as in v1.0.2.
+
 ## v1.0.2 - 2026-11-02
 
 The quad can be mounted from either side. Scripts only: models, textures, materials,
